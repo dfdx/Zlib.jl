@@ -24,7 +24,7 @@ seekstart(b)
 
 seekstart(b)
 r = Zlib.Reader(b)
-decompressed = Array(UInt8, 0)
+decompressed = Array{UInt8}(0)
 while !eof(r)
     append!(decompressed, read(r, UInt8, 200000))
 end
@@ -53,8 +53,8 @@ seekstart(b)
 r = Zlib.Reader(b)
 @test_throws ErrorException write(r, convert(UInt8, 20))
 for x in data
-    if isa(x, Compat.ASCIIString)
-        @test x == Compat.ASCIIString(read(r, UInt8, length(x)))
+    if isa(x, String)
+        @test x == String(read(r, UInt8, length(x)))
     elseif isa(x, Array)
         y = similar(x)
         y[:] = 0

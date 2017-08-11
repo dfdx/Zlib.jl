@@ -136,7 +136,7 @@ Writer(io::IO, gzip::Bool=false, raw::Bool=false) = Writer(io, 9, gzip, raw)
 function write(w::Writer, p::Ptr, nb::Integer)
     w.strm.next_in = p
     w.strm.avail_in = nb
-    outbuf = Array(UInt8, 1024)
+    outbuf = Array{UInt8}(1024)
 
     while true
         w.strm.avail_out = length(outbuf)
@@ -208,10 +208,10 @@ function close(w::Writer)
     w.closed = true
 
     # flush zlib buffer using Z_FINISH
-    inbuf = Array(UInt8, 0)
+    inbuf = Array{UInt8}(0)
     w.strm.next_in = pointer(inbuf)
     w.strm.avail_in = 0
-    outbuf = Array(UInt8, 1024)
+    outbuf = Array{UInt8}(1024)
     ret = Z_OK
     while ret != Z_STREAM_END
         w.strm.avail_out = length(outbuf)
@@ -239,7 +239,7 @@ function compress(input::Vector{UInt8}, level::Integer, gzip::Bool=false, raw::B
     w = Writer(b, level, gzip, raw)
     write(w, input)
     close(w)
-    takebuf_array(b)
+    take!(b)
 end
 
 
@@ -284,7 +284,7 @@ function fillbuf(r::Reader, minlen::Integer)
         input = read(r.io, UInt8, min(nb_available(r.io), r.bufsize))
         r.strm.next_in = pointer(input)
         r.strm.avail_in = length(input)
-        #outbuf = Array(UInt8, r.bufsize)
+        #outbuf = Array{UInt8}(r.bufsize)
 
         while true
             #r.strm.next_out = outbuf
@@ -367,7 +367,7 @@ function readuntil(r::Reader, delim::UInt8)
         nb = search(r.buf, delim) #, offset)
     end
     if nb == 0;  nb == nb_available(r.buf); end
-    read!(r.buf, Array(UInt8, nb))
+    read!(r.buf, Array{UInt8}(nb))
 end
 
 function close(r::Reader)
